@@ -1,0 +1,79 @@
+﻿@model ECommerce.Application.DTOs.ProductDto
+@{
+    ViewData["Title"] = "Delete Product";
+}
+
+<div class="container my-5">
+
+    <div class="card-theme border-danger">
+
+        <div class="card-theme-header text-danger">
+            <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+        </div>
+
+        <p class="fs-5 mb-2">
+            Are you sure you want to delete
+            <strong class="text-danger">@Model.Name</strong>
+            permanently?
+        </p>
+
+        <p class="text-danger small mb-4">
+            This action cannot be undone.
+        </p>
+
+        <div class="row align-items-center">
+
+            <div class="col-md-4 mb-3">
+                @{
+                    var imgSrc =
+                    !string.IsNullOrEmpty(Model.ImageUrl)
+                    ? "/images/products/" + Model.ImageUrl
+                    : !string.IsNullOrEmpty(Model.ThumbnailUrl)
+                    ? "/images/products/" + Model.ThumbnailUrl
+                    : "/images/no-image.png";
+                }
+
+                <img src="@imgSrc"
+                     class="img-preview w-100 shadow-sm"
+                     style="max-height:260px; object-fit:contain;" />
+            </div>
+
+            <div class="col-md-8">
+
+                <p class="mb-1">
+                    <strong>Category:</strong> @Model.CategoryName
+                </p>
+                <p class="mb-1">
+                    <strong>Price:</strong> $@Model.Price
+                </p>
+                <p class="mb-3">
+                    <strong>Stock:</strong> @Model.Stock
+                </p>
+
+                <form asp-action="DeleteConfirmed" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                    <div class="d-flex gap-2 mt-4">
+
+                        <button type="submit"
+                                class="btn-theme btn-danger-theme"
+                                onclick="this.disabled=true; this.form.submit();">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+
+                        <a href="javascript:history.back()"
+                           class="btn-theme btn-secondary-theme">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>

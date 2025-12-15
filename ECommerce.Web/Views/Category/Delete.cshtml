@@ -1,0 +1,66 @@
+﻿@model ECommerce.Application.DTOs.CategoryDto
+
+@{
+    ViewData["Title"] = "Delete Category";
+}
+
+<div class="container my-4">
+
+    @if (!User.IsInRole("Admin"))
+    {
+        <div class="alert alert-danger d-flex align-items-center gap-2">
+            <i class="bi bi-shield-lock fs-5"></i>
+            <span>Access Denied. Admins only.</span>
+        </div>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    }
+    else
+    {
+        <div class="card shadow p-4 border border-danger">
+
+            <h3 class="fw-bold text-danger mb-3">
+                <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+            </h3>
+
+            <div class="alert alert-warning">
+                <strong>Warning:</strong> This action <u>cannot be undone</u>.
+            </div>
+
+            <p class="fs-5 mb-2">You are about to delete the following category:</p>
+
+            <div class="bg-light border rounded p-3 mb-4">
+                <strong>@Model.Name</strong>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mb-3">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+            <form asp-action="DeleteConfirmed" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Delete Permanently
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    }
+
+</div>

@@ -1,0 +1,103 @@
+﻿@model ECommerce.Core.Entities.Order
+@using ECommerce.Core.Enums
+
+@{
+    ViewData["Title"] = "Change Order Status";
+    
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+
+
+}
+@{
+    var backUrl = ViewBag.ReturnUrl as string;
+    var safeBackUrl = !string.IsNullOrEmpty(backUrl)
+        ? backUrl
+        : Url.Action("Index", "AdminOrders");
+}
+
+<div class="container my-5">
+
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-pencil-square"></i> Change Order Status
+    </h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <p class="mb-1"><strong>Order ID:</strong> #@Model.Id</p>
+                <p class="mb-1"><strong>User ID:</strong> @Model.UserId</p>
+                <p class="mb-1">
+                    <strong>Current Status:</strong>
+                    @{
+                        string statusClass = Model.Status switch
+                        {
+                            OrderStatus.Pending => "bg-warning text-dark",
+                            OrderStatus.Processing => "bg-info text-dark",
+                            OrderStatus.Completed => "bg-success",
+                            OrderStatus.Cancelled => "bg-secondary",
+                            _ => "bg-light text-dark"
+                        };
+
+                    }
+                    <span class="badge @statusClass">@Model.Status</span>
+                </p>
+                <p class="mb-1">
+                    <strong>Payment:</strong> @Model.PaymentStatus
+                </p>
+                <p class="mb-0">
+                    <strong>Total:</strong>
+                    <span class="text-success fw-bold">$@Model.TotalAmount</span>
+                </p>
+            </div>
+
+            <hr />
+
+            <form method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select New Status</label>
+                    <select name="status" class="form-select">
+                        <option value="@OrderStatus.Pending"
+                                selected="@(Model.Status == OrderStatus.Pending)">
+                            Pending
+                        </option>
+
+                        <option value="@OrderStatus.Processing"
+                                selected="@(Model.Status == OrderStatus.Processing)">
+                            Processing
+                        </option>
+
+                        <option value="@OrderStatus.Completed"
+                                selected="@(Model.Status == OrderStatus.Completed)">
+                            Completed
+                        </option>
+
+                        <option value="@OrderStatus.Cancelled"
+                                selected="@(Model.Status == OrderStatus.Cancelled)">
+                            Cancelled
+                        </option>
+
+                    </select>
+                </div>
+
+                <button class="btn btn-success me-2">
+                    <i class="bi bi-check2-circle"></i> Save
+                </button>
+
+                <a href="@safeBackUrl"
+                   class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+
+
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

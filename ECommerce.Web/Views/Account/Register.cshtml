@@ -1,0 +1,132 @@
+﻿@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    .register-card {
+        max-width: 480px;
+        margin: auto;
+        border-radius: 18px;
+        padding: 35px;
+    }
+
+    .register-input {
+        padding-left: 40px !important;
+        height: 44px;
+        margin-bottom: 26px !important; /* مساحة للخطأ */
+    }
+
+    .icon-inside {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 18px;
+    }
+
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+        /* رسائل الخطأ تحت الـ input مباشرة بدون ما تزقّه */
+        .input-wrapper .text-danger {
+            position: absolute;
+            left: 40px;
+            bottom: -18px;
+            font-size: 13px;
+            color: #dc3545 !important;
+            margin: 0;
+            padding: 0;
+        }
+</style>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+
+        <div class="card shadow register-card">
+
+            <h2 class="fw-bold text-center mb-4">Create Your Account</h2>
+
+            <div class="text-center mb-3">
+                <img id="previewImg"
+                     src="/images/users/default.png"
+                     class="rounded-circle shadow-sm border"
+                     width="140" height="140"
+                     style="object-fit: cover;">
+            </div>
+
+            <form method="post" asp-action="Register" enctype="multipart/form-data">
+
+                <div class="mb-3">
+                    <label class="form-label">Profile Picture</label>
+                    <input asp-for="ImageFile"
+                           type="file"
+                           class="form-control"
+                           accept="image/*"
+                           onchange="previewImage(event)" />
+                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                </div>
+
+                <script>
+                    function previewImage(e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        const validTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif", "image/webp"];
+
+                        if (!validTypes.includes(file.type)) {
+                            alert("Only image files are allowed!");
+                            e.target.value = "";
+                            return;
+                        }
+
+                        const img = document.getElementById("previewImg");
+                        img.src = URL.createObjectURL(file);
+                    }
+                </script>
+
+                <div class="input-wrapper">
+                    <i class="bi bi-person icon-inside"></i>
+                    <input asp-for="UserName" class="form-control register-input" placeholder="User Name" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="bi bi-envelope icon-inside"></i>
+                    <input asp-for="Email" class="form-control register-input" placeholder="Email Address" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="bi bi-lock icon-inside"></i>
+                    <input asp-for="Password" type="password" class="form-control register-input" placeholder="Password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="bi bi-shield-lock icon-inside"></i>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control register-input" placeholder="Confirm Password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 btn-lg">
+                    Create Account
+                </button>
+
+                <p class="text-center mt-3">
+                    Already have an account?
+                    <a href="/Account/Login">Login</a>
+                </p>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

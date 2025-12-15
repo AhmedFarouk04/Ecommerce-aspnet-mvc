@@ -1,0 +1,26 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container my-5">
+    <div class="card shadow p-5 text-center">
+
+        <h1 class="text-danger fw-bold mb-3">Oops! Something went wrong 😕</h1>
+
+        <p class="fs-5 mb-4">
+            An unexpected error occurred while processing your request.
+        </p>
+
+        @if (Model.ShowRequestId)
+        {
+            <p class="text-muted">
+                <strong>Request ID:</strong>
+                <code>@Model.RequestId</code>
+            </p>
+        }
+
+        <a href="/" class="btn btn-primary btn-lg mt-3">Go back to Home</a>
+
+    </div>
+</div>

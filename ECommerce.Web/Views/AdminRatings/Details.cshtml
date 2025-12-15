@@ -1,0 +1,73 @@
+﻿@model RatingAdminViewModel
+
+@{
+    ViewData["Title"] = "Rating Details";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="container my-5">
+
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-star-fill text-warning"></i> Rating Details
+    </h2>
+
+    <div class="card shadow-sm p-4 mb-3">
+
+        <div class="mb-3">
+            <strong>ID:</strong> #@Model.Id
+        </div>
+
+        <div class="mb-3">
+            <strong>User:</strong><br />
+            <img src="/images/users/@(Model.UserThumbnail ?? "default.png")"
+                 width="50" height="50"
+                 class="rounded-circle me-2 mb-2" />
+            <span class="fw-semibold">@Model.UserName</span>
+            <span class="text-muted">(@Model.Email)</span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Product:</strong>
+            <a href="/Products/Details/@Model.ProductId" class="fw-semibold">
+                @Model.ProductName
+            </a>
+        </div>
+
+        <div class="mb-3">
+            <strong>Stars:</strong>
+            <span class="badge bg-warning text-dark fs-6">
+                @Model.Stars ★
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Comment:</strong>
+            <div class="text-muted mt-1">
+                @Model.Comment
+            </div>
+        </div>
+
+        <div>
+            <strong>Date:</strong>
+            @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+        </div>
+
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <form method="post" action="/AdminRatings/Delete/@Model.Id">
+            <button type="button"
+                    class="btn btn-danger"
+                    onclick="openDeleteModal(this)">
+                <i class="bi bi-trash"></i> Delete Rating
+            </button>
+        </form>
+
+        <a href="/AdminRatings" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+
+    </div>
+
+</div>

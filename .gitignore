@@ -1,0 +1,57 @@
+# ========================
+# Visual Studio
+# ========================
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ========================
+# Build results
+# ========================
+bin/
+obj/
+
+# ========================
+# .NET
+# ========================
+*.dll
+*.exe
+
+# ========================
+# Logs
+# ========================
+*.log
+
+# ========================
+# OS files
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Secrets & Environment
+# ========================
+**/appsettings.Development.json
+**/appsettings.Production.json
+
+# لو حابب تخفي appsettings.json نفسه
+**/appsettings.json
+
+# ========================
+# User-specific launch settings
+# ========================
+**/Properties/launchSettings.json
+
+# ========================
+# Node / Frontend (لو موجود)
+# ========================
+node_modules/
+wwwroot/lib/
+
+# ========================
+# Rider / VS Code
+# ========================
+.idea/
+.vscode/

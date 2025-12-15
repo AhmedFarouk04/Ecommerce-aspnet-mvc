@@ -1,0 +1,107 @@
+﻿@model IEnumerable<ECommerce.Core.Entities.Order>
+@using ECommerce.Core.Enums
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-receipt"></i> My Orders
+    </h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info p-4 fs-5 shadow-sm text-center rounded">
+            <i class="bi bi-bag-x fs-1 d-block mb-3"></i>
+            <p class="mb-3">You haven't placed any orders yet.</p>
+            <a href="/Products" class="btn btn-primary px-4">Start Shopping</a>
+        </div>
+        return;
+    }
+
+    <div class="row g-4">
+        @foreach (var order in Model)
+        {
+            var statusClass = order.Status switch
+            {
+                OrderStatus.Pending => "bg-warning text-dark",
+                OrderStatus.Processing => "bg-info text-dark",
+                OrderStatus.Completed => "bg-success",
+                OrderStatus.Cancelled => "bg-danger",
+                _ => "bg-secondary"
+            };
+
+            var paymentClass = order.PaymentStatus switch
+            {
+                PaymentStatus.Paid => "bg-success",
+                PaymentStatus.Unpaid => "bg-warning text-dark",
+                PaymentStatus.Failed => "bg-danger",
+                _ => "bg-secondary"
+            };
+
+            var itemsCount = order.Items?.Count ?? 0;
+
+            <div class="col-12">
+                <div class="card shadow-sm border-0 hover-shadow transition">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                            <div class="flex-grow-1">
+                                <h5 class="fw-bold mb-1">Order #@order.Id</h5>
+                                <p class="text-muted mb-2">
+                                    <i class="bi bi-calendar-event"></i>
+                                    @order.OrderDate.ToString("dddd, MMMM dd, yyyy - hh:mm tt")
+                                </p>
+
+                                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                                    <span class="badge @statusClass fs-6">@order.Status</span>
+                                    <span class="badge @paymentClass fs-6">@order.PaymentStatus</span>
+                                    <span class="badge bg-primary fs-6">@itemsCount Item@(itemsCount == 1 ? "" : "s")</span>
+                                    @if (order.Status == OrderStatus.Cancelled)
+                                    {
+                                        <span class="badge bg-danger fs-6">Cancelled</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                <h4 class="fw-bold text-success mb-3">$@order.TotalAmount.ToString("F2")</h4>
+
+                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                    <a href="/Orders/Details/@order.Id" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye"></i> View Details
+                                    </a>
+
+                                    @if (order.Status == OrderStatus.Pending)
+                                    {
+                                        <a href="/Orders/EditAddress/@order.Id" class="btn btn-outline-warning btn-sm">
+                                            <i class="bi bi-pencil-square"></i> Edit Address
+                                        </a>
+
+                                        <form asp-action="Cancel" asp-route-id="@order.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                    onclick="return confirm('Are you sure you want to cancel Order #@order.Id? This action will restore the stock.');">
+                                                <i class="bi bi-x-circle"></i> Cancel Order
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+
+        .hover-shadow:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+            transform: translateY(-2px);
+        }
+</style>

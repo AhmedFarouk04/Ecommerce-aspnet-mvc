@@ -1,0 +1,134 @@
+﻿@{
+    var path = Context.Request.Path.Value?.ToLower() ?? "";
+    bool IsActive(string startsWith)
+        => path.StartsWith(startsWith, StringComparison.OrdinalIgnoreCase);
+}
+
+<aside class="admin-sidebar">
+    <div class="admin-sidebar-header">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-cart-check fs-4 text-primary"></i>
+            <div>
+                <div class="fw-bold">E-Commerce</div>
+                <div class="text-muted small">Admin</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="admin-nav">
+        <a class="admin-link dashboard @(path == "/admin" ? "active" : "")"
+           href="/Admin">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+
+
+        <div class="admin-section">Catalog</div>
+        <a class="admin-link @(IsActive("/products") ? "active" : "")" href="/Products">
+            <i class="bi bi-box"></i> Products
+        </a>
+        <a class="admin-link @(IsActive("/category") ? "active" : "")" href="/Category">
+            <i class="bi bi-tags"></i> Categories
+        </a>
+
+        <div class="admin-section">Management</div>
+        <a class="admin-link @(IsActive("/adminorders") ? "active" : "")" href="/AdminOrders">
+            <i class="bi bi-receipt"></i> Orders
+        </a>
+        <a class="admin-link @(IsActive("/adminreviews") ? "active" : "")" href="/AdminReviews">
+            <i class="bi bi-chat-left-text"></i> Reviews
+        </a>
+        <a class="admin-link @(IsActive("/adminratings") ? "active" : "")" href="/AdminRatings">
+            <i class="bi bi-star-half"></i> Ratings
+        </a>
+        <a class="admin-link @(IsActive("/adminwishlist") ? "active" : "")" href="/AdminWishlist">
+            <i class="bi bi-heart"></i> Wishlist
+        </a>
+
+        <a
+           asp-controller="Admin"
+           asp-action="Users"
+           class="admin-link @(IsActive("/admin/users") ? "active" : "")">
+            <i class="bi bi-people"></i> Manage Users
+        </a>
+
+
+
+        <div class="admin-section">System</div>
+        <a asp-area="Admin"
+           asp-controller="Admin"
+           asp-action="ActivityLogs"
+           class="admin-link @(IsActive("/admin/activitylogs") ? "active" : "")">
+            <i class="bi bi-clipboard-data"></i> Activity Logs
+        </a>
+    </nav>
+</aside>
+<style>
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 250px;
+        background-color: #1f2937;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.35);
+        padding-top: 10px;
+        transition: all 0.3s ease;
+    }
+
+
+    .admin-content {
+        margin-left: 250px;
+        padding-top: 60px;
+    }
+
+    .admin-sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 15px;
+        background-color: #111827;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+
+    .admin-nav {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .admin-section {
+        padding: 12px 16px 6px; 
+        font-size: 11px;
+        color: #9ca3af;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-top: 22px;
+        letter-spacing: 1px;
+    }
+
+
+        .admin-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+    .admin-link.dashboard {
+        padding-left: 18px;
+        font-weight: 600;
+    }
+
+
+    .admin-section {
+        padding: 12px 16px 6px; 
+        font-size: 11px;
+        color: #9ca3af;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-top: 22px;
+        letter-spacing: 1px;
+    }
+
+</style>

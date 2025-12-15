@@ -1,0 +1,138 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<style>
+    .login-wrapper {
+        max-width: 460px;
+        margin: 60px auto;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .login-card {
+        border-radius: 16px;
+        padding: 40px 32px;
+        background: white;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .login-title {
+        font-weight: 700;
+        font-size: 30px;
+    }
+
+    .input-icon-wrapper {
+        position: relative;
+    }
+
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 18px;
+        }
+
+    .form-control.input-with-icon {
+        padding-left: 44px;
+        height: 50px;
+        border-radius: 10px;
+    }
+
+    .btn-login {
+        height: 50px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #0066ff, #0050d4);
+        border: none;
+    }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #0050d4, #003daa);
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .link-custom {
+        text-decoration: none;
+        color: #0d6efd;
+    }
+
+        .link-custom:hover {
+            text-decoration: underline;
+        }
+</style>
+
+<div class="login-wrapper">
+    <div class="card login-card">
+
+        <h2 class="text-center login-title mb-4">Welcome Back</h2>
+
+        <form method="post" asp-action="Login">
+
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <!-- Email / Username -->
+            <div class="mb-3 input-icon-wrapper">
+                <i class="bi bi-person"></i>
+                <input asp-for="LoginInput"
+                       class="form-control input-with-icon"
+                       placeholder="Email or Username" />
+                <span asp-validation-for="LoginInput" class="text-danger"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3 input-icon-wrapper">
+                <i class="bi bi-lock"></i>
+                <input asp-for="Password"
+                       type="password"
+                       class="form-control input-with-icon"
+                       placeholder="Password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label"></label>
+                </div>
+
+                <a href="/Account/ForgotPassword" class="link-custom">Forgot password?</a>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="btn btn-login w-100 mb-3">
+                Login
+            </button>
+
+            <!-- Register -->
+            <p class="text-center">
+                Don't have an account?
+                <a href="/Account/Register" class="link-custom fw-bold">Register</a>
+            </p>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

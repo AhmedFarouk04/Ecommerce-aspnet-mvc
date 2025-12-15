@@ -1,0 +1,133 @@
+﻿@model ECommerce.Core.Entities.Order
+@using ECommerce.Core.Enums
+
+@{
+    ViewData["Title"] = $"Order #{Model.Id}";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+@{
+    var backUrl = ViewBag.ReturnUrl as string;
+    var safeBackUrl = !string.IsNullOrEmpty(backUrl)
+        ? backUrl
+        : Url.Action("Index", "AdminOrders");
+}
+
+<div class="container my-5">
+
+    <h2 class="fw-bold mb-3">
+        <i class="bi bi-card-checklist"></i> Order #@Model.Id
+    </h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>User ID:</strong> @Model.UserId</p>
+                    <p class="mb-1"><strong>Customer Name:</strong> @Model.FullName</p>
+                    <p class="mb-1"><strong>Address:</strong> @Model.Address</p>
+                </div>
+
+                <div class="col-md-6">
+                    <p class="mb-1">
+                        <strong>Date:</strong>
+                        @Model.OrderDate.ToString("yyyy-MM-dd hh:mm tt")
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Status:</strong>
+                        @{
+                            string statusClass = Model.Status switch
+                            {
+                                OrderStatus.Pending => "bg-warning text-dark",
+                                OrderStatus.Processing => "bg-info text-dark",
+                                OrderStatus.Completed => "bg-success",
+                                OrderStatus.Cancelled => "bg-secondary",
+                                _ => "bg-light text-dark"
+                            };
+                        }
+                        <span class="badge @statusClass">@Model.Status</span>
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Payment:</strong>
+                        @{
+                            string paymentClass = Model.PaymentStatus switch
+                            {
+                                PaymentStatus.Paid => "bg-success",
+                                PaymentStatus.Unpaid => "bg-secondary",
+                                PaymentStatus.Failed => "bg-danger",
+                                _ => "bg-light text-dark"
+                            };
+                        }
+                        <span class="badge @paymentClass">@Model.PaymentStatus</span>
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(Model.PaymentReference))
+                    {
+                        <p class="mb-1">
+                            <strong>Payment Ref:</strong> @Model.PaymentReference
+                        </p>
+                    }
+
+                    <p class="mt-2 mb-0">
+                        <strong>Total:</strong>
+                        <span class="text-success fw-bold">$@Model.TotalAmount</span>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h4 class="fw-bold mb-3">Items</h4>
+
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@item.Product?.Name</td>
+                                    <td>@item.Quantity</td>
+                                    <td>$@item.UnitPrice</td>
+                                    <td class="fw-bold">$@(item.Quantity* item.UnitPrice)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">
+                                    No items in this order.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <a href="@safeBackUrl"
+       class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Orders
+    </a>
+
+
+
+
+</div>

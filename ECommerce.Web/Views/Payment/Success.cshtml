@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Payment Successful";
+}
+
+<div class="container my-5 text-center">
+
+    <div class="mb-4">
+        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+    </div>
+
+    <h2 class="fw-bold text-success mb-3">Payment Successful!</h2>
+
+    <p class="fs-5 text-muted mb-3">
+        Thank you! Your payment for order #@ViewBag.OrderId has been confirmed.
+    </p>
+
+    <p class="text-muted">
+        You can review your order details from the <a href="/Orders/MyOrders">My Orders</a> page.
+    </p>
+
+    <a href="/Products" class="btn btn-primary btn-lg mt-3">
+        <i class="bi bi-shop"></i> Continue Shopping
+    </a>
+</div>

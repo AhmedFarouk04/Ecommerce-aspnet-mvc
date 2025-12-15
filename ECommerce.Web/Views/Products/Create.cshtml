@@ -1,0 +1,83 @@
+﻿@model ECommerce.Web.ViewModels.ProductFormViewModel
+@{
+    ViewData["Title"] = "Create Product";
+}
+
+<div class="container my-5">
+
+    <div class="card-theme">
+
+        <div class="card-theme-header">
+            <i class="bi bi-plus-circle"></i> Add New Product
+        </div>
+
+        <form asp-action="Create"
+              method="post"
+              enctype="multipart/form-data"
+              id="createProductForm">
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger"></div>
+            }
+
+
+            <partial name="_ProductForm" model="Model" />
+
+            <img id="imgPreview"
+                 class="img-preview mt-3 d-none"
+                 alt="Image Preview" />
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit"
+                        id="createBtn"
+                        class="btn-theme btn-primary-theme"
+                        @(ViewData.ModelState.IsValid ? "" : "disabled")>
+                    <i class="bi bi-check2-circle"></i> Create
+                </button>
+
+
+                <a href="/Products" class="btn-theme btn-secondary-theme">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const fileInput = document.querySelector('input[type="file"]');
+        const preview = document.getElementById("imgPreview");
+
+        if (fileInput) {
+            fileInput.addEventListener("change", e => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove("d-none");
+            });
+        }
+
+              document.getElementById("createProductForm")
+        .addEventListener("submit", function () {
+
+            if (!this.checkValidity()) return;
+
+            const btn = document.getElementById("createBtn");
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.disabled = false;
+            }, 3000); 
+        });
+
+
+    </script>
+}

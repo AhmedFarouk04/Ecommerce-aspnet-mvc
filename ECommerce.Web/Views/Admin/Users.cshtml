@@ -1,0 +1,183 @@
+﻿@model IEnumerable<ECommerce.Web.ViewModels.AdminUserViewModel>
+
+@{
+    ViewData["Title"] = "Users Management";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+
+    var currentSearch = Context.Request.Query["search"].ToString();
+    var currentRole = Context.Request.Query["role"].ToString();
+    var currentStatus = Context.Request.Query["status"].ToString();
+    var currentEmailStatus = Context.Request.Query["emailStatus"].ToString();
+    var currentOrdersFilter = Context.Request.Query["ordersFilter"].ToString();
+    var currentSort = Context.Request.Query["sort"].ToString();
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+}
+
+<div class="container my-5">
+
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-people"></i> Users Management
+    </h2>
+
+    <form method="get" class="card shadow-sm p-4 mb-4 border-0">
+        <div class="row g-3">
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Search</label>
+                <input name="search"
+                       class="form-control"
+                       placeholder="Search by username or email"
+                       value="@currentSearch" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Role</label>
+                <select name="role" class="form-control">
+                    <option value="">All</option>
+                    <option value="Admin" selected="@(currentRole == "Admin")">Admin</option>
+                    <option value="Customer" selected="@(currentRole == "Customer")">Customer</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All</option>
+                    <option value="active" selected="@(currentStatus == "active")">Active</option>
+                    <option value="suspended" selected="@(currentStatus == "suspended")">Suspended</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Email</label>
+                <select name="emailStatus" class="form-control">
+                    <option value="">All</option>
+                    <option value="confirmed" selected="@(currentEmailStatus == "confirmed")">Confirmed</option>
+                    <option value="unconfirmed" selected="@(currentEmailStatus == "unconfirmed")">Unconfirmed</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Orders</label>
+                <select name="ordersFilter" class="form-control">
+                    <option value="">All</option>
+                    <option value="withOrders" selected="@(currentOrdersFilter == "withOrders")">With Orders</option>
+                    <option value="withoutOrders" selected="@(currentOrdersFilter == "withoutOrders")">No Orders</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Sort By</label>
+                <select name="sort" class="form-control">
+                    <option value="">Name (A → Z)</option>
+                    <option value="name_desc" selected="@(currentSort == "name_desc")">Name (Z → A)</option>
+                    <option value="email_asc" selected="@(currentSort == "email_asc")">Email (A → Z)</option>
+                    <option value="email_desc" selected="@(currentSort == "email_desc")">Email (Z → A)</option>
+                    <option value="date_newest" selected="@(currentSort == "date_newest")">Newest Users</option>
+                    <option value="date_oldest" selected="@(currentSort == "date_oldest")">Oldest Users</option>
+                    <option value="orders_high" selected="@(currentSort == "orders_high")">Orders (High → Low)</option>
+                    <option value="orders_low" selected="@(currentSort == "orders_low")">Orders (Low → High)</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="card shadow-sm border-0 p-4 mb-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Photo</th>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Email Status</th>
+                        <th>Reg. Date</th>
+                        <th>Orders</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center text-muted">
+                                No users found
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        int index = (currentPage - 1) * pageSize + 1;
+
+                        foreach (var u in Model)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>
+                                    <img src="/images/users/@(u.ThumbnailUrl ?? u.ImageUrl ?? "default.png")"
+                                         width="45" height="45"
+                                         class="rounded-circle"
+                                         style="object-fit:cover;" />
+                                </td>
+                                <td>@u.UserName</td>
+                                <td>@u.Email</td>
+                                <td>
+                                    @if (u.IsAdmin)
+                                    {
+                                        <span class="badge bg-danger">Admin</span>
+                                    }
+                                    @if (u.IsCustomer)
+                                    {
+                                        <span class="badge bg-primary">Customer</span>
+                                    }
+                                </td>
+                                <td>
+                                    @(u.EmailConfirmed ? "Confirmed" : "Unconfirmed")
+                                </td>
+                                <td>@u.RegistrationDate.ToString("yyyy-MM-dd")</td>
+                                <td>@u.OrdersCount</td>
+                                <td>
+                                    @(u.IsSuspended ? "Suspended" : "Active")
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex align-items-center gap-1">
+
+                                        <a asp-area="Admin"
+                                           asp-controller="Admin"
+                                           asp-action="UserDetails"
+                                           asp-route-id="@u.Id"
+                                           class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip"
+                                           title="View User Details">
+                                            <i class="bi bi-eye"></i>
+                                            <span class="d-none d-md-inline ms-1">View</span>
+                                        </a>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+                            index++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

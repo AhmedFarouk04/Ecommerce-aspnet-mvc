@@ -1,0 +1,115 @@
+﻿@model UserProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="d-flex justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0 rounded-4 p-4">
+
+            <h2 class="fw-bold text-center mb-3">My Profile</h2>
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-success text-center rounded-pill fw-semibold shadow-sm">
+                    @ViewBag.Message
+                </div>
+            }
+
+            <div class="text-center mb-3">
+                <img id="profilePreview"
+                     src="/images/users/@(Model.ThumbnailUrl ?? Model.ImageUrl ?? "default.png")"
+                     class="rounded-circle border shadow-sm"
+                     width="150" height="150"
+                     style="object-fit:cover;" />
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="needs-validation">
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="OriginalUserName" />
+                <input type="hidden" asp-for="OriginalEmail" />
+                <input type="hidden" asp-for="OriginalImage" />
+
+                <!-- Upload -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Upload New Profile Picture</label>
+                    <input asp-for="ImageFile" type="file"
+                           class="form-control form-control-lg"
+                           accept="image/*"
+                           onchange="loadPreview(event)">
+                    <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                </div>
+
+                <script>
+                    function loadPreview(e) {
+                        if (e.target.files.length > 0)
+                            document.getElementById("profilePreview").src =
+                                URL.createObjectURL(e.target.files[0]);
+                    }
+                </script>
+
+                <!-- Username -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">User Name</label>
+                    <input asp-for="UserName" class="form-control form-control-lg rounded-3" />
+                    <span asp-validation-for="UserName" class="text-danger small"></span>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Email</label>
+                    <input asp-for="Email" class="form-control form-control-lg rounded-3" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <!-- Save Button -->
+                <button id="saveBtn" class="btn btn-primary w-100 btn-lg rounded-pill shadow-sm" disabled>
+                    Save Changes
+                </button>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+
+                        const origUser = "@Model.OriginalUserName";
+                        const origEmail = "@Model.OriginalEmail";
+                        const origImg = "@Model.OriginalImage";
+
+                        const usernameInput = document.getElementById("UserName");
+                        const emailInput = document.getElementById("Email");
+                        const imgInput = document.getElementById("ImageFile");
+                        const saveBtn = document.getElementById("saveBtn");
+
+                        function detectChanges() {
+                            const changed =
+                                usernameInput.value !== origUser ||
+                                emailInput.value !== origEmail ||
+                                imgInput.files.length > 0;
+
+                            saveBtn.disabled = !changed;
+                        }
+
+                        usernameInput.addEventListener("input", detectChanges);
+                        emailInput.addEventListener("input", detectChanges);
+                        imgInput.addEventListener("change", detectChanges);
+                    });
+                </script>
+
+            </form>
+
+            <hr />
+
+            <div class="text-center">
+                <a href="/Account/ChangePassword"
+                   class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                    Change Password
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

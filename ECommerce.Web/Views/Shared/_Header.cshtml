@@ -1,0 +1,522 @@
+﻿@using ECommerce.Web.Services
+@using ECommerce.Web.ViewModels
+@inject SessionCartService CartService
+
+@{
+    var thumb = User.FindFirst("ThumbnailUrl")?.Value
+                ?? User.FindFirst("ImageUrl")?.Value
+                ?? "default.png";
+
+    var cartCount = CartService.GetCount();
+    var isAdminPage = Context.Request.Path.StartsWithSegments("/Admin");
+}
+
+<style>
+    .nav-search-wrapper {
+        position: relative;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .nav-search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+        background: #fff;
+        border-radius: var(--radius-lg);
+        margin-top: 0.35rem;
+        box-shadow: var(--shadow-soft);
+        max-height: 360px;
+        overflow-y: auto;
+        border: 1px solid var(--gray-200);
+    }
+
+    .nav-search-item {
+        display: flex;
+        align-items: center;
+        padding: 0.55rem 0.7rem;
+        color: var(--gray-900);
+        transition: 0.15s ease-in-out;
+        cursor: pointer;
+    }
+
+        .nav-search-item:hover,
+        .nav-search-item.active {
+            background-color: var(--gray-100);
+        }
+
+    .nav-search-thumb {
+        width: 42px;
+        height: 42px;
+        border-radius: var(--radius-md);
+        object-fit: cover;
+        margin-right: 0.65rem;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .nav-search-preview {
+        position: absolute;
+        top: 100%;
+        right: -320px;
+        width: 300px;
+        z-index: 1040;
+        margin-top: 0.25rem;
+        background: #ffffff;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card-strong);
+        padding: 0.85rem;
+        border: 1px solid var(--gray-200);
+    }
+
+    @@media (max-width: 992px) {
+        .nav-search-preview {
+            display: none !important;
+        }
+    }
+
+    .mini-cart-dropdown {
+        min-width: 330px;
+        max-width: 380px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card-strong);
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg bg-white shadow-sm py-2">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <i class="bi bi-cart-check me-1 fs-4 text-primary"></i>
+            <span>E-Commerce</span>
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Products">
+                        <i class="bi bi-box"></i> Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Category">
+                        <i class="bi bi-tags"></i> Categories
+                    </a>
+                </li>
+            </ul>
+
+            <form class="d-none d-md-flex nav-search-wrapper me-3" autocomplete="off">
+                <input class="form-control"
+                       type="search"
+                       placeholder="Search products..."
+                       id="navSearchInput" />
+                <div id="navSearchResults" class="nav-search-results d-none"></div>
+                <div id="navSearchPreview" class="nav-search-preview d-none"></div>
+            </form>
+
+            <ul class="navbar-nav align-items-center">
+
+                
+                <li class="nav-item me-2">
+                    <a class="nav-link position-relative"
+                       href="#"
+                       id="cartDropdown">
+
+                        <i class="bi bi-cart3 fs-5"></i>
+
+                        <span id="cartCounter"
+                              class="badge-cart bg-danger text-white position-absolute top-0 start-100 translate-middle"
+                              style="display:@(cartCount > 0 ? "block" : "none");">
+                            @cartCount
+                        </span>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end p-0 mini-cart-dropdown"
+                         id="mini-cart-dropdown"
+                         style="display:none;">
+                    </div>
+                </li>
+
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item me-2">
+                        <a class="btn @(isAdminPage ? "btn-primary" : "btn-outline-dark") rounded-pill"
+                           href="/Admin">
+                            <i class="bi bi-shield-lock"></i>
+                            @(isAdminPage ? "Admin Dashboard" : "Dashboard")
+                        </a>
+                    </li>
+                }
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           href="#" data-bs-toggle="dropdown">
+                            <img src="/images/users/@thumb"
+                                 class="rounded-circle"
+                                 width="38" height="38"
+                                 style="object-fit:cover"
+                                 onerror="this.src='/images/no-image.png'" />
+                            <span class="fw-semibold">Hello, @User.Identity.Name</span>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow rounded-4">
+                            <li><a class="dropdown-item" href="/Account/Profile">Profile</a></li>
+                            <li><a class="dropdown-item" href="/Orders/MyOrders">My Orders</a></li>
+                            <li><a class="dropdown-item" href="/Wishlist">Wishlist</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="/Account/Logout">
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="btn btn-primary me-2 rounded-pill" href="/Account/Login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-success rounded-pill" href="/Account/Register">Register</a>
+                    </li>
+                }
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+
+
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.getElementById("navSearchInput");
+            const resultsBox = document.getElementById("navSearchResults");
+            const previewBox = document.getElementById("navSearchPreview");
+
+            if (!input || !resultsBox) return;
+
+            let debounceTimer;
+            let currentItems = [];
+            let selectedIndex = -1;
+
+            function escapeHtml(str) {
+                if (!str) return "";
+                return str
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function highlight(text, term) {
+                if (!text) return "";
+                const raw = text.toString();
+                const escaped = escapeHtml(raw);
+                term = term || "";
+                const t = term.trim();
+                if (!t) return escaped;
+
+                const pattern = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                const regex = new RegExp("(" + pattern + ")", "ig");
+                return escaped.replace(regex, "<mark>$1</mark>");
+            }
+
+            function closeResults() {
+                resultsBox.classList.add("d-none");
+                resultsBox.innerHTML = "";
+                currentItems = [];
+                selectedIndex = -1;
+                renderPreview(null);
+            }
+
+            function renderPreview(item) {
+                if (!previewBox) return;
+
+                if (!item) {
+                    previewBox.classList.add("d-none");
+                    previewBox.innerHTML = "";
+                    return;
+                }
+
+                const name = item.getAttribute("data-name") || "";
+                const img = item.getAttribute("data-image") || "/images/no-image.png";
+                const category = item.getAttribute("data-category") || "";
+                const price = item.getAttribute("data-price") || "";
+                const avgStr = item.getAttribute("data-avg") || "0";
+                const count = item.getAttribute("data-count") || "0";
+                const href = item.getAttribute("href") || "#";
+
+                const avg = parseFloat(avgStr) || 0;
+                const full = Math.floor(avg);
+                const half = (avg % 1) >= 0.5;
+                const empty = 5 - full - (half ? 1 : 0);
+
+                let starsHtml = "";
+                starsHtml += "★".repeat(full);
+                if (half) starsHtml += "☆";
+                starsHtml += "✩".repeat(empty);
+
+                previewBox.innerHTML = `
+    <div class="d-flex flex-column">
+        <img src="${img}"
+             class="rounded mb-2"
+             style="width:100%; height:160px; object-fit:cover;"
+             onerror="this.src='/images/no-image.png';" />
+        <h6 class="fw-bold mb-1">${name}</h6>
+        <div class="d-flex align-items-center mb-1 text-warning nav-search-stars">
+            <span>${starsHtml}</span>
+            <span class="text-muted ms-1" style="font-size:0.75rem;">(${count})</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">${category}</small>
+            <span class="fw-bold text-success">$${price}</span>
+        </div>
+        <a href="${href}" class="btn btn-sm btn-primary mt-2">
+            <i class="bi bi-eye"></i> View Details
+        </a>
+    </div>`;
+                previewBox.classList.remove("d-none");
+            }
+
+            function setActiveIndex(newIndex) {
+                if (!currentItems.length) return;
+
+                if (selectedIndex >= 0 && selectedIndex < currentItems.length) {
+                    currentItems[selectedIndex].classList.remove("active");
+                }
+
+                selectedIndex = newIndex;
+
+                if (selectedIndex >= 0 && selectedIndex < currentItems.length) {
+                    const el = currentItems[selectedIndex];
+                    el.classList.add("active");
+                    el.scrollIntoView({ block: "nearest" });
+                    renderPreview(el);
+                } else {
+                    renderPreview(null);
+                }
+            }
+
+            function attachItemEvents() {
+                currentItems.forEach((item, idx) => {
+                    item.addEventListener("mouseenter", () => {
+                        setActiveIndex(idx);
+                    });
+                });
+
+                const wishBtns = resultsBox.querySelectorAll(".nav-wishlist-btn");
+                wishBtns.forEach(btn => {
+                    btn.addEventListener("click", function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+
+                        const productId = this.getAttribute("data-product-id");
+                        let inWishlist = this.getAttribute("data-inwishlist") === "true";
+
+                        const url = inWishlist ? "/Wishlist/Remove" : "/Wishlist/Add";
+
+                        fetch(url, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                            },
+                            body: "productId=" + encodeURIComponent(productId)
+                        })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (!data || data.success !== true) {
+                                    if (window.showToast) {
+                                        showToast("Please login to manage wishlist.", "warning");
+                                    }
+                                    return;
+                                }
+
+                                inWishlist = !inWishlist;
+                                this.setAttribute("data-inwishlist", inWishlist ? "true" : "false");
+                                const icon = this.querySelector("i");
+                                if (icon) {
+                                    icon.className = inWishlist
+                                        ? "bi bi-heart-fill text-danger"
+                                        : "bi bi-heart";
+                                }
+
+                                if (window.showToast) {
+                                    showToast(
+                                        inWishlist ? "Added to wishlist ♥" : "Removed from wishlist.",
+                                        "success"
+                                    );
+                                }
+                            })
+                            .catch(() => {
+                                if (window.showToast) {
+                                    showToast("Error updating wishlist.", "danger");
+                                }
+                            });
+                    });
+                });
+            }
+
+            async function performSearch(term) {
+                term = term.trim();
+                if (!term) {
+                    closeResults();
+                    return;
+                }
+
+                try {
+                    const resp = await fetch("/Products/AutoComplete?q=" + encodeURIComponent(term), {
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    });
+
+                    if (!resp.ok) {
+                        closeResults();
+                        return;
+                    }
+
+                    const items = await resp.json();
+
+                    if (!Array.isArray(items) || !items.length) {
+                        resultsBox.innerHTML = `<div class="p-2 text-muted small">No products found.</div>`;
+                        resultsBox.classList.remove("d-none");
+                        currentItems = [];
+                        selectedIndex = -1;
+                        renderPreview(null);
+                        return;
+                    }
+
+                    const lowerTerm = term.toLowerCase();
+
+                    const html = items.map(p => {
+                        const price = parseFloat(p.price).toFixed(2);
+                        const avg = p.averageRating || 0;
+                        const count = p.ratingCount || 0;
+                        const inWish = !!p.isInWishlist;
+
+                        const full = Math.floor(avg);
+                        const half = (avg % 1) >= 0.5;
+                        const empty = 5 - full - (half ? 1 : 0);
+
+                        let starsHtml = "";
+                        starsHtml += "★".repeat(full);
+                        if (half) starsHtml += "☆";
+                        starsHtml += "✩".repeat(empty);
+
+                        const namePlain = escapeHtml(p.name);
+                        const nameHighlighted = highlight(p.name, lowerTerm);
+                        const categoryPlain = escapeHtml(p.category || "");
+
+                        const heartClass = inWish
+                            ? "bi bi-heart-fill text-danger"
+                            : "bi bi-heart";
+
+                        return `
+    <a class="nav-search-item"
+       href="/Products/Details/${p.id}"
+       data-id="${p.id}"
+       data-name="${namePlain}"
+       data-image="${p.image}"
+       data-category="${categoryPlain}"
+       data-price="${price}"
+       data-avg="${avg.toFixed(1)}"
+       data-count="${count}">
+        <img src="${p.image}"
+             class="nav-search-thumb"
+             onerror="this.src='/images/no-image.png';" />
+
+        <div class="flex-grow-1">
+            <div class="nav-search-title">${nameHighlighted}</div>
+
+            <div class="d-flex align-items-center text-warning nav-search-stars">
+                <span>${starsHtml}</span>
+                <span class="text-muted ms-1" style="font-size:0.75rem;">(${count})</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-1">
+                <span class="nav-search-cat">${categoryPlain}</span>
+                <span class="nav-search-price">$${price}</span>
+            </div>
+        </div>
+
+        <button type="button"
+                class="btn btn-sm btn-outline-danger ms-2 nav-wishlist-btn"
+                data-product-id="${p.id}"
+                data-inwishlist="${inWish}">
+            <i class="${heartClass}"></i>
+        </button>
+    </a>`;
+                    }).join("");
+
+                    resultsBox.innerHTML = html;
+                    resultsBox.classList.remove("d-none");
+
+                    currentItems = Array.from(resultsBox.querySelectorAll(".nav-search-item"));
+                    selectedIndex = -1;
+                    renderPreview(null);
+
+                    attachItemEvents();
+                }
+                catch {
+                    closeResults();
+                }
+            }
+
+            input.addEventListener("input", function () {
+                clearTimeout(debounceTimer);
+                const term = this.value;
+
+                if (!term.trim()) {
+                    closeResults();
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => performSearch(term), 300);
+            });
+
+            input.addEventListener("keydown", function (ev) {
+                if (resultsBox.classList.contains("d-none")) return;
+
+                if (ev.key === "ArrowDown") {
+                    ev.preventDefault();
+                    if (!currentItems.length) return;
+                    const next = selectedIndex < currentItems.length - 1 ? selectedIndex + 1 : 0;
+                    setActiveIndex(next);
+                } else if (ev.key === "ArrowUp") {
+                    ev.preventDefault();
+                    if (!currentItems.length) return;
+                    const prev = selectedIndex > 0 ? selectedIndex - 1 : currentItems.length - 1;
+                    setActiveIndex(prev);
+                } else if (ev.key === "Enter") {
+                    if (selectedIndex >= 0 && selectedIndex < currentItems.length) {
+                        ev.preventDefault();
+                        const link = currentItems[selectedIndex];
+                        const href = link.getAttribute("href");
+                        if (href) window.location.href = href;
+                    }
+                } else if (ev.key === "Escape") {
+                    closeResults();
+                }
+            });
+
+            document.addEventListener("click", function (ev) {
+                if (!resultsBox.contains(ev.target) && ev.target !== input) {
+                    closeResults();
+                }
+            });
+        });
+</script>

@@ -1,0 +1,333 @@
+﻿@model ECommerce.Web.ViewModels.AdminUserDetailsViewModel
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="container my-4">
+
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-person-circle"></i> User Details
+    </h2>
+
+    
+    <div class="card shadow-sm p-4 mb-4">
+        <div class="d-flex align-items-center">
+
+            <img src="/images/users/@(Model.ThumbnailUrl ?? Model.ImageUrl ?? "default.png")"
+                 class="rounded-circle me-3"
+                 width="90" height="90"
+                 style="object-fit:cover;" />
+
+
+            <div>
+                <h4>@Model.UserName</h4>
+                <p class="text-muted mb-1">@Model.Email</p>
+
+                <div class="mb-2">
+                    <span class="badge @(Model.IsAdmin ? "bg-danger" : "bg-secondary")">
+                        @(Model.IsAdmin ? "Admin" : "Customer")
+                    </span>
+
+                    <span class="badge @(Model.IsSuspended ? "bg-warning text-dark" : "bg-success")">
+                        @(Model.IsSuspended ? "Suspended" : "Active")
+                    </span>
+                </div>
+
+                <small class="text-muted">
+                    Registered: @Model.RegistrationDate.ToString("yyyy-MM-dd")
+                </small>
+            </div>
+
+            <div class="ms-auto">
+
+                
+                @if (!Model.IsAdmin)
+                {
+                    <form method="post" action="/Admin/MakeAdmin" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn btn-outline-danger btn-sm">Make Admin</button>
+                    </form>
+                }
+                else
+                {
+                    <form method="post" action="/Admin/RemoveAdmin" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn btn-outline-secondary btn-sm">Remove Admin</button>
+                    </form>
+                }
+
+                
+                @if (!Model.IsSuspended)
+                {
+                    <form method="post" action="/Admin/SuspendUser" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn btn-warning btn-sm">Suspend</button>
+                    </form>
+                }
+                else
+                {
+                    <form method="post" action="/Admin/RestoreUser" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn btn-success btn-sm">Restore</button>
+                    </form>
+                }
+
+                <button type="button"
+                        class="btn btn-danger btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteUserModal">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <ul class="nav nav-tabs mb-4" id="userTabs" role="tablist">
+
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-profile">
+                Profile
+            </button>
+        </li>
+
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-orders">
+                Orders (@Model.Orders.Count())
+            </button>
+        </li>
+
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ratings">
+                Ratings (@Model.Ratings.Count())
+            </button>
+        </li>
+
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reviews">
+                Reviews (@Model.Reviews.Count())
+            </button>
+        </li>
+
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-wishlist">
+                Wishlist (@Model.Wishlist.Count())
+            </button>
+        </li>
+
+    </ul>
+
+
+
+    <div class="tab-content">
+
+        
+        <div class="tab-pane fade show active" id="tab-profile">
+
+            <div class="card shadow-sm p-4">
+
+                <h5 class="fw-bold mb-3">User Information</h5>
+
+                <p><strong>Email:</strong> @Model.Email</p>
+                <p><strong>Phone:</strong> @(Model.PhoneNumber ?? "Not Provided")</p>
+                <p><strong>Email Confirmed:</strong> @(Model.EmailConfirmed ? "Yes" : "No")</p>
+                <p><strong>Two Factor Enabled:</strong> @(Model.TwoFactorEnabled ? "Yes" : "No")</p>
+                <p><strong>Failed Login Attempts:</strong> @Model.AccessFailedCount</p>
+                <p><strong>Lockout End:</strong> @(Model.LockoutEnd?.ToString("yyyy-MM-dd HH:mm") ?? "Not Locked")</p>
+
+            </div>
+
+        </div>
+
+
+        
+        <div class="tab-pane fade" id="tab-orders">
+
+            <div class="card shadow-sm p-4">
+
+                <h5 class="fw-bold mb-3">Orders History</h5>
+
+                @if (!Model.Orders.Any())
+                {
+                    <p class="text-muted">No orders yet.</p>
+                }
+                else
+                {
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var o in Model.Orders)
+                            {
+                                <tr>
+                                    <td>@o.Id</td>
+                                    <td>@o.OrderDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@o.Status</td>
+                                    <td class="fw-bold">$@o.TotalAmount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </div>
+
+        </div>
+
+
+       
+        <div class="tab-pane fade" id="tab-ratings">
+
+            <div class="card shadow-sm p-4">
+
+                <h5 class="fw-bold mb-3">Ratings</h5>
+
+                @if (!Model.Ratings.Any())
+                {
+                    <p class="text-muted">No ratings yet.</p>
+                }
+                else
+                {
+                    @foreach (var r in Model.Ratings)
+                    {
+                        <div class="mb-3">
+                            <strong>@r.Stars ★</strong>
+                            <span class="text-muted"> — Product ID: @r.ProductId</span>
+                            <br />
+                            <small class="text-muted">@r.CreatedAt</small>
+                        </div>
+                        <hr />
+                    }
+                }
+
+            </div>
+
+        </div>
+
+
+        
+        <div class="tab-pane fade" id="tab-reviews">
+
+            <div class="card shadow-sm p-4">
+
+                <h5 class="fw-bold mb-3">Reviews</h5>
+
+                @if (!Model.Reviews.Any())
+                {
+                    <p class="text-muted">No reviews yet.</p>
+                }
+                else
+                {
+                    @foreach (var rv in Model.Reviews)
+                    {
+                        <div class="mb-3">
+                            <strong>@rv.Product.Name</strong>
+                            <br />
+                            @rv.Comment
+                            <br />
+                            <small class="text-muted">@rv.CreatedAt</small>
+                        </div>
+                        <hr />
+                    }
+                }
+
+            </div>
+
+        </div>
+
+
+        
+        <div class="tab-pane fade" id="tab-wishlist">
+
+            <div class="card shadow-sm p-4">
+
+                <h5 class="fw-bold mb-3">Wishlist</h5>
+
+                @if (!Model.Wishlist.Any())
+                {
+                    <p class="text-muted">Empty wishlist.</p>
+                }
+                else
+                {
+                    <div class="row">
+
+                        @foreach (var item in Model.Wishlist)
+                        {
+                            <div class="col-md-4 mb-3">
+                                <div class="card shadow-sm p-2">
+                                    <img src="/images/products/@item.Product.ImageUrl"
+                                         class="card-img-top" height="180" />
+                                    <div class="card-body">
+                                        <h6 class="fw-bold">@item.Product.Name</h6>
+                                        <p class="text-success fw-bold">$@item.Product.Price</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-1">
+                        Are you sure you want to delete this user?
+                    </p>
+                    <small class="text-muted">
+                        This action cannot be undone.
+                    </small>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <form method="post" action="/Admin/DeleteUser">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-danger">
+                            Yes, Delete
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

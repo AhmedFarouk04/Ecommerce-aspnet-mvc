@@ -1,0 +1,52 @@
+﻿@model ECommerce.Application.DTOs.CategoryDto
+
+@{
+    ViewData["Title"] = "Category Details";
+}
+
+<div class="container my-4">
+
+    <div class="card shadow p-4">
+
+        <h3 class="fw-bold mb-3">
+            <i class="bi bi-info-circle"></i> Category Details
+        </h3>
+
+        <div class="mb-3">
+            <p class="mb-1"><strong>ID:</strong></p>
+            <p class="text-muted">@Model.Id</p>
+        </div>
+
+        <div class="mb-3">
+            <p class="mb-1"><strong>Name:</strong></p>
+            <p class="text-muted">@Model.Name</p>
+        </div>
+
+        <hr />
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-primary">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </a>
+
+                <a asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+</div>

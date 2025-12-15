@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Payment Canceled";
+}
+
+<div class="container my-5 text-center">
+    <div class="mb-3">
+        <i class="bi bi-x-circle-fill text-danger" style="font-size: 4rem;"></i>
+    </div>
+
+    <h2 class="fw-bold text-danger mb-3">Payment Canceled</h2>
+
+    <p class="fs-5 text-muted mb-4">
+        Your payment was canceled. Your order is still pending.
+    </p>
+
+    <a href="/Payment/Start?orderId=@ViewBag.OrderId" class="btn btn-success btn-lg me-2">
+        <i class="bi bi-arrow-repeat"></i> Retry Payment
+    </a>
+
+    <a href="/Orders/MyOrders" class="btn btn-outline-secondary btn-lg">
+        <i class="bi bi-list-ul"></i> View My Orders
+    </a>
+</div>

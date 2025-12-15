@@ -1,0 +1,274 @@
+﻿@model ECommerce.Web.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-speedometer2"></i> Admin Dashboard
+    </h2>
+
+    <form method="post" asp-action="FilterProducts">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <input type="date" class="form-control" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <input type="date" class="form-control" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="search" placeholder="Search Products..." value="@Model.Search" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+    </form>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h6 class="text-muted">Total Products</h6>
+                <h2 class="fw-bold">@Model.TotalProducts</h2>
+                <canvas id="totalProductsChart" class="d-block w-100" height="120"></canvas>
+                <i class="bi bi-box-seam text-primary fs-1"></i>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h6 class="text-muted">Total Categories</h6>
+                <h2 class="fw-bold">@Model.TotalCategories</h2>
+                <canvas id="totalCategoriesChart" class="d-block w-100" height="120"></canvas>
+                <i class="bi bi-tags text-warning fs-1"></i>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h6 class="text-muted">Total Users</h6>
+                <h2 class="fw-bold">@Model.TotalUsers</h2>
+                <i class="bi bi-people text-success fs-1"></i>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h6 class="text-muted">Admins</h6>
+                <h2 class="fw-bold">@Model.TotalAdmins</h2>
+                <i class="bi bi-person-badge text-danger fs-1"></i>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h6 class="text-muted">Customers</h6>
+                <h2 class="fw-bold">@Model.TotalCustomers</h2>
+                <i class="bi bi-person text-info fs-1"></i>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <h6 class="text-muted">Total Stock Value</h6>
+                <h3 class="fw-bold text-success">$@Model.TotalStockValue.ToString("N2")</h3>
+                <i class="bi bi-cash-stack text-success fs-1"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 p-4">
+        <h4 class="fw-bold mb-3">
+            <i class="bi bi-box"></i> Latest Added Products
+        </h4>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.LatestProducts == null || !Model.LatestProducts.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                No products found
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var p in Model.LatestProducts)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="/images/products/@(p.ImageUrl ?? "default.png")"
+                                         width="60"
+                                         height="60"
+                                         class="rounded"
+                                         style="object-fit:cover"
+                                         onerror="this.src='/images/products/default.png';" />
+                                </td>
+                                <td>@p.Name</td>
+                                <td>$@p.Price</td>
+                                <td>@p.Stock</td>
+                                <td class="text-end">
+                                    <a asp-controller="Products"
+                                       asp-action="Edit"
+                                       asp-route-id="@p.Id"
+                                       asp-route-returnUrl="@Context.Request.Path"
+                                       class="btn btn-warning btn-sm">
+                                        Edit
+                                    </a>
+
+                                    <a asp-controller="Products"
+                                       asp-action="Delete"
+                                       asp-route-id="@p.Id"
+                                       asp-route-returnUrl="@Context.Request.Path"
+                                       class="btn btn-danger btn-sm">
+                                        Delete
+                                    </a>
+
+
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 p-4">
+        <h4 class="fw-bold mb-3">
+            <i class="bi bi-bar-chart"></i> Products per Category
+        </h4>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Category</th>
+                        <th>Products Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ProductsPerCategory == null || !Model.ProductsPerCategory.Any())
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">
+                                No data available
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model.ProductsPerCategory)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="/Products?categoryId=@item.CategoryId"
+                                       class="text-decoration-none text-primary">
+                                        @item.Name
+                                    </a>
+                                </td>
+                                <td>@item.ProductsCount</td>
+                            </tr>
+                        }
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Product pagination">
+            <ul class="pagination">
+                <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" href="/Admin/Index?page=@(Model.CurrentPage - 1)">Previous</a>
+                </li>
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="/Admin/Index?page=@i">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="/Admin/Index?page=@(Model.CurrentPage + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function generateColors(numColors) {
+            const colors = [];
+            for (let i = 0; i < numColors; i++) {
+                const color = 'hsl(' + (i * 360 / numColors) + ', 70%, 50%)';
+                colors.push(color);
+            }
+            return colors;
+        }
+
+        var ctx = document.getElementById('totalProductsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                       labels: @Html.Raw(Json.Serialize(Model.ProductsPerCategory.Select(x => x.Name))),
+        datasets: [{
+            label: 'Products per Category',
+            data: @Html.Raw(Json.Serialize(Model.ProductsPerCategory.Select(x => x.ProductsCount))),
+            backgroundColor: generateColors(@Model.ProductsPerCategory.Count),
+            borderColor: generateColors(@Model.ProductsPerCategory.Count),
+            borderWidth: 1
+        }]
+
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        var ctx2 = document.getElementById('totalCategoriesChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                       labels: @Html.Raw(Json.Serialize(Model.ProductsPerCategory.Select(x => x.Name))),
+        datasets: [{
+            data: @Html.Raw(Json.Serialize(Model.ProductsPerCategory.Select(x => x.ProductsCount))),
+            backgroundColor: generateColors(@Model.ProductsPerCategory.Count),
+            borderWidth: 1
+        }]
+
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + ' products';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
+

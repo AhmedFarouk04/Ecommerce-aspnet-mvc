@@ -1,0 +1,41 @@
+﻿@model IEnumerable<ECommerce.Application.DTOs.CategoryDto>
+
+@if (!Model.Any())
+{
+    <tr>
+        <td colspan="2" class="text-center text-muted py-4">
+            No categories found.
+        </td>
+    </tr>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>
+                <a asp-action="Details"
+                   asp-route-id="@item.Id"
+                   class="btn btn-sm btn-info">
+                    <i class="bi bi-eye"></i> Details
+                </a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Edit"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-danger">
+                        <i class="bi bi-trash"></i> Delete
+                    </a>
+                }
+            </td>
+        </tr>
+    }
+}

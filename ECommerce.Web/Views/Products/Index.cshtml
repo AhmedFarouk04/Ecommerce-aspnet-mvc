@@ -1,0 +1,246 @@
+﻿@model ECommerce.Web.ViewModels.ProductListViewModel
+@using ECommerce.Web.ViewModels
+
+@{
+
+
+    ViewData["Title"] = "Products";
+}
+
+
+<div class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Shop Products</h2>
+            <p class="page-subtitle mb-0">Browse and filter our latest products</p>
+        </div>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a href="/Products/Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Add Product
+            </a>
+        }
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <form id="productFilterForm" class="row g-3 align-items-end" onsubmit="return false;">
+
+                <div class="col-lg-4">
+                    <label class="form-label">Search</label>
+                    <input type="text"
+                           name="search"
+                           value="@Model.Search"
+                           class="form-control form-control-lg"
+                           placeholder="Search products..." />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Category</label>
+                    <select name="categoryId" class="form-select">
+                        <option value="">All</option>
+                        @foreach (var c in Model.Categories)
+                        {
+                            <option value="@c.Id" selected="@(Model.CategoryId == c.Id)">
+                                @c.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Sort</label>
+                    <select name="sort" class="form-select">
+                        <option value="">Default</option>
+                        <option value="price_asc" selected="@(Model.Sort == "price_asc")">Price ↑</option>
+                        <option value="price_desc" selected="@(Model.Sort == "price_desc")">Price ↓</option>
+                        <option value="name_asc" selected="@(Model.Sort == "name_asc")">Name A–Z</option>
+                        <option value="name_desc" selected="@(Model.Sort == "name_desc")">Name Z–A</option>
+                        <option value="rating_desc" selected="@(Model.Sort == "rating_desc")">Top Rated</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Min Price</label>
+                    <input type="number"
+                           class="form-control"
+                           name="minPrice"
+                           value="@Model.MinPrice"
+                           placeholder="0" />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Max Price</label>
+                    <input type="number"
+                           class="form-control"
+                           name="maxPrice"
+                           value="@Model.MaxPrice"
+                           placeholder="Any" />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Rating</label>
+                    <select name="minRating" class="form-select">
+                        <option value="">Any</option>
+                        <option value="1" selected="@(Model.MinRating == 1)">1★+</option>
+                        <option value="2" selected="@(Model.MinRating == 2)">2★+</option>
+                        <option value="3" selected="@(Model.MinRating == 3)">3★+</option>
+                        <option value="4" selected="@(Model.MinRating == 4)">4★+</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2 d-flex align-items-center">
+                    <div class="form-check mt-3">
+                        <input type="checkbox"
+                               name="inStockOnly"
+                               value="true"
+                               class="form-check-input"
+                               checked="@Model.InStockOnly" />
+                        <label class="form-check-label">In Stock</label>
+                    </div>
+                </div>
+
+                <div class="col-lg-2">
+                    <button type="button"
+                            id="applyFiltersBtn"
+                            class="btn btn-primary w-100">
+                        Apply
+                    </button>
+                </div>
+
+                <div class="col-lg-2">
+                    <a href="/Products"
+                       class="btn btn-outline-secondary w-100">
+                        Reset
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div id="productsSkeleton" class="row g-4 d-none">
+        @for (int i = 0; i < 8; i++)
+        {
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="card skeleton-card"></div>
+            </div>
+        }
+    </div>
+
+    <div id="productsContainer">
+        @await Html.PartialAsync("_ProductsGrid", Model)
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+
+            const form = document.getElementById("productFilterForm");
+            const container = document.getElementById("productsContainer");
+            const skeleton = document.getElementById("productsSkeleton");
+            const filterUrl = '@Url.Action("Filter", "Products")';
+
+            function buildQuery(page) {
+                const data = new FormData(form);
+                const params = new URLSearchParams();
+
+                for (const [k, v] of data.entries()) {
+                    if (v) params.append(k, v);
+                }
+
+                if (page) params.set("page", page);
+                return params.toString();
+            }
+
+            async function loadProducts(page = 1) {
+                skeleton.classList.remove("d-none");
+                container.classList.add("opacity-50");
+
+                const response = await fetch(
+                    filterUrl + "?" + buildQuery(page),
+                    {
+                        headers: { "X-Requested-With": "XMLHttpRequest" },
+                        cache: "no-store"
+                    }
+                );
+
+                container.innerHTML = await response.text();
+
+                skeleton.classList.add("d-none");
+                container.classList.remove("opacity-50");
+
+                attachPaginationHandlers();
+            }
+
+            function attachPaginationHandlers() {
+                container.querySelectorAll("a.page-link[data-page]")
+                    .forEach(link => {
+                        link.addEventListener("click", e => {
+                            e.preventDefault();
+                            loadProducts(link.dataset.page);
+                        });
+                    });
+            }
+
+            document.getElementById("applyFiltersBtn")
+                .addEventListener("click", () => loadProducts(1));
+
+            let typingTimer;
+            const searchInput = form.querySelector('input[name="search"]');
+            searchInput.addEventListener("keyup", () => {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => loadProducts(1), 400);
+            });
+
+            loadProducts(1);
+
+            document.addEventListener("cart:updated", function (e) {
+                    if (!e.detail) return;
+                const { productId, availableStock } = e.detail;
+
+                const card = document.querySelector(
+                    `.product-card[data-product-id="${productId}"]`
+                );
+
+                if (!card) return;
+
+                const badge = card.querySelector(".product-stock-badge");
+                const btn = card.querySelector(".add-to-cart-btn");
+
+                if (!badge || !btn) return;
+
+                if (availableStock > 10) {
+                    badge.className = "badge bg-success mb-2 align-self-start product-stock-badge";
+                    badge.textContent = "In Stock";
+                    btn.disabled = false;
+                    btn.classList.remove("disabled");
+
+
+                }
+                else if (availableStock > 0) {
+                    badge.className = "badge bg-warning text-dark mb-2 align-self-start product-stock-badge";
+                    badge.textContent = `Only ${availableStock} left`;
+                    btn.disabled = false;
+                    btn.classList.remove("disabled");
+                }
+                else {
+                    badge.className = "badge bg-danger mb-2 align-self-start product-stock-badge";
+                    badge.textContent = "Out of Stock";
+                    btn.disabled = true;
+                    btn.classList.add("disabled");
+                }
+            });
+
+        })();
+    </script>
+}
+
+
+

@@ -1,0 +1,54 @@
+﻿@model ECommerce.Application.DTOs.CartItemDto
+
+<div class="cart-item d-flex align-items-center justify-content-between border-bottom py-3">
+
+    <div class="d-flex align-items-center">
+        <img src="@(string.IsNullOrEmpty(Model.ImageUrl)
+                         ? "/images/no-image.png"
+                         : "/images/products/" + Model.ImageUrl)"
+             class="rounded shadow-sm"
+             style="width:95px;height:95px;object-fit:cover;" />
+
+        <div class="ms-3">
+            <h5 class="fw-bold mb-1">@Model.ProductName</h5>
+
+            <p class="text-muted mb-1 small">
+                Unit Price:
+                <strong class="text-dark">$@Model.Price</strong>
+            </p>
+
+            <button type="button"
+                    class="btn btn-link text-danger p-0 small"
+                    onclick="removeFromCartAjax(@Model.ProductId)">
+                <i class="bi bi-trash"></i> Remove
+            </button>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <div class="input-group" style="width:140px;">
+            <button class="btn btn-outline-secondary"
+                    onclick="updateQty(@Model.ProductId, -1)">
+                -
+            </button>
+
+            <input type="text"
+                   id="qty-@Model.ProductId"
+                   class="form-control text-center"
+                   value="@Model.Quantity"
+                   readonly />
+
+            <button class="btn btn-outline-secondary"
+                    onclick="updateQty(@Model.ProductId, 1)">
+                +
+            </button>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <h5 class="fw-bold text-success mb-0"
+            id="item-total-@Model.ProductId">
+            $@Model.Total
+        </h5>
+    </div>
+</div>

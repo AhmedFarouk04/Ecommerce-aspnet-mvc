@@ -1,0 +1,51 @@
+﻿@model int
+@{
+    ViewData["Title"] = "Order Success";
+}
+
+<div class="container my-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+
+            <div class="card shadow-lg border-0 p-5 text-center">
+
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success"
+                       style="font-size:4.5rem;"></i>
+                </div>
+
+                <h2 class="fw-bold text-success mb-3">
+                    Order Placed Successfully!
+                </h2>
+
+                <p class="fs-5 mb-2">
+                    Your order number is
+                    <strong class="text-dark">#@Model</strong>
+                </p>
+
+                <p class="text-muted mb-4">
+                    Thank you for shopping with us.
+                    Your order is being processed and you will be notified once it’s shipped.
+                </p>
+
+                <div class="d-grid gap-3">
+
+                    <a href="/Orders/Details/@Model"
+                       class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-receipt"></i> View Order Details
+                    </a>
+
+                    <a href="/Products"
+                       class="btn btn-primary btn-lg">
+                        <i class="bi bi-shop"></i> Continue Shopping
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
