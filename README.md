@@ -128,12 +128,7 @@ ECommerceSolution/
    - Register a new user → automatically becomes **Customer**
    - To create first Admin: after registration, manually add "Admin" role via database or use the admin panel once you promote a user.
 
-## Deployment Notes
 
-- Publish with `dotnet publish`
-- Ensure the web server has write permissions for `/wwwroot/images/` (products/users)
-- Set up Stripe webhook endpoint: `https://yourdomain/stripe-webhook`
-- Use HTTPS in production
 
 ## Contributing
 
